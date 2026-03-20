@@ -2,7 +2,7 @@
 
 ## 1. 目标
 
-基于 `Micro/image` 中的显微图数据，挑选约 3000 张参考图，使用 `qwen-image-edit` 生成与参考图属于同一显微成像类型、保持相同背景和成像风格、但在细胞数量、大小、位置和局部形态上明显不同的新图。
+基于 `train/Micro/image` 中的训练集显微图数据，挑选约 3000 张参考图，使用 `qwen-image-edit` 生成与参考图属于同一显微成像类型、保持相同背景和成像风格、但在细胞数量、大小、位置和局部形态上明显不同的新图。
 
 本方案只讨论数据筛选、描述结构、prompt 设计和质控流程，不修改现有代码。
 
@@ -11,13 +11,12 @@
 基于当前仓库内数据的快速统计：
 
 - 图像总数：`8514`
-- 文件位置：`Micro/image`
+- 文件位置：`train/Micro/image`
 - 图像格式：`4362` 张 `.png`，`4152` 张 `.jpg`
 - 类块数量：`748`
 - 同类样本在文件排序后是连续块，平均每类约 `11.38` 张
 - 每类样本数量范围：`1` 到 `76`
-- 如果每类最多取 `4` 张，可得到 `2716` 张
-- 如果每类最多取 `5` 张，可得到 `3257` 张
+- 如果按全局顺序“每三个选一个”取样，可得到 `2838` 张参考图
 
 从文件名可稳定拆出两层信息：
 
@@ -26,13 +25,19 @@
 - `<code>` 的前两位可作为显微成像风格或采集子类型的代理字段
 - `stain` 部分描述染色/通道组合，如 `NA`、`MB`、`BC`、`JC`、`NONE`
 
+补充说明：
+
+- “类内”原本指的是：按连续出现的同一 `class_id` 视为一个类块，在该类块内部做取样
+- 例如某一类块有 9 张图，类内“每三个选一个”就是取第 `1, 4, 7` 张
+- 但你当前已经明确不采用这个口径，而是采用“全局取样”
+
 当前数据的一个重要特征是：
 
 - 单一 `class_id` 内经常混有多个 `<code>` 前缀
 - 因此 `class_id` 更像“同结构类别块”
 - `<code>` 前缀更像“成像/实验子类型”
 
-这意味着 3000 张筛选不能只按类块均匀抽样，也不能只按全局随机抽样，推荐采用“双层分层抽样”。
+虽然数据在顺序上存在类块结构，但当前方案按你的要求，直接采用全局顺序下采样。
 
 ## 3. 推荐筛选策略
 
@@ -45,37 +50,37 @@
 - 每个类块内部优先选择“最适合作为生成参考图”的样本
 - 尽量减少极差样本、严重伪影样本和信息量过低样本
 
-### 3.2 推荐的双层分层抽样
+### 3.2 当前确认的筛选规则
 
-第一层：按 `class_id` 保证结构类别覆盖
+你当前确认的规则是：
 
-- 先把按文件顺序连续出现的同一 `class_id` 视为一个类块
-- 每个类块先分配基础名额 `4`
-- 这样可得到 `2716` 张，保证大多数类块都进入生成集
+- 这部分数据属于训练集
+- 筛选时按全局顺序取样
+- 整个训练集统一采用“每三个选一个”
+- 不再额外按类块或大类做分层筛选
 
-第二层：按 `<code>` 前缀补足到约 `3000`
+具体执行方式：
 
-- 还需要补 `284` 张
-- 这部分从样本数 `>=5` 的类块中追加
-- 追加时优先补给以下两类样本：
-- 其一，当前代表性较弱的成像前缀
-- 其二，类块中质量更高、结构更清晰、背景更稳定的样本
+- 先对 `train/Micro/image` 中全部图像按当前文件顺序排列
+- 从全局列表中固定选择位置 `1, 4, 7, 10, ...`
+- 即整批数据统一按全局步长 `3` 下采样
 
-推荐分配方式：
+按当前训练集统计：
 
-- 基础层：每类最多取 `4`
-- 追加层：从 `541` 个样本数 `>=5` 的类块中，约 `284` 个类块各再取 `1`
-- 这样最终约为 `2716 + 284 = 3000`
+- 全局“每三个选一个”后，可得到 `2838` 张参考图
+- 后续任务定义为“每个参考图生成 1 张新图”
+- 因此首轮生成规模对应为 `2838 -> 2838`
 
-### 3.3 类块内的具体选图规则
+### 3.3 全局选图后的质量规则
 
-对每个类块，按以下顺序选图：
+对全局采样后得到的参考图，再做质量过滤：
 
-1. 先覆盖不同 `<code>` 前缀
-2. 再覆盖不同染色/通道组合
-3. 最后在候选中选质量更稳的图
+1. 先按全局顺序执行“每三个选一个”
+2. 再在被选中的图中做质量过滤
+3. 如果某张图质量明显不达标，则剔除
+4. 是否补选由后续执行阶段再决定
 
-如果某个类块有 4 个以上候选，优先保留：
+质量控制是第一规则。优先保留：
 
 - 背景均匀、亮度不过曝不过暗
 - 主体结构完整，没有大面积裁切
@@ -91,27 +96,7 @@
 - 颜色或亮度异常、疑似采集失败的图
 - 主体被边缘裁断过多的图
 
-### 3.4 前缀分布建议
-
-按现有数据量，主要前缀的近似比例为：
-
-- `01`: 1180
-- `02`: 1381
-- `03`: 1460
-- `04`: 1142
-- `05`: 1252
-- `06`: 984
-- `07`: 565
-- `08`: 276
-- `09`: 129
-- `10`: 60
-- `11`: 51
-
-如果要让 3000 张参考图总体接近原始风格分布，可把追加层 `284` 张按这些前缀的原始占比近似补齐。
-
-如果目标是“提高生成覆盖面”，则应对长尾前缀做保护，不完全按原始比例采样，而是对 `08` 以后的小类前缀适当抬高权重。
-
-### 3.5 推荐输出清单格式
+### 3.4 推荐输出清单格式
 
 建议最终产出一个参考图清单表，至少包含：
 
@@ -119,9 +104,14 @@
 - `class_id`
 - `style_prefix`
 - `stain_tag`
-- `pick_round`，值为 `base` 或 `extra`
+- `global_pick_index`
 - `quality_flag`
 - `note`
+
+建议额外补两个字段：
+
+- `keep_reason`
+- `drop_reason`
 
 这样后面做批量生成、失败重跑、按类型回查都会方便很多。
 
@@ -148,7 +138,18 @@
 
 ## 5. 结构化描述设计
 
-推荐把结构化描述拆成“固定属性”和“可变属性”。
+当前方案不再依赖“大类模板优先”的方式，而是直接精确到每张图像本身。
+
+推荐把结构化描述拆成两层：
+
+- 固定属性
+- 可变属性
+
+也就是说：
+
+- 不先假设某张图一定属于哪套 prompt 模板
+- 每张图都先单独解析视觉特征
+- prompt 直接由这张图的结构化描述动态生成
 
 ### 5.1 固定属性
 
@@ -189,6 +190,16 @@
 - `morphology_change_strength`: `subtle` / `medium`
 - `must_keep`: 背景、照明、色调、模糊、噪声、成像域
 - `must_avoid`: 文本、人工轮廓、锐化边缘、卡通感、跨模态变化
+
+### 5.4 每图必须满足的硬约束
+
+每张图生成时都必须满足以下规则：
+
+- 与参考图属于同一显微成像类型
+- 保留相同背景、照明方式、色调和成像风格
+- 保留相同层级的模糊程度、噪声水平和对比度
+- 只改变实验结果相关内容，即细胞数量、大小、位置、局部形态和局部聚集关系
+- 新图必须明显不同于参考图，但不能跳出同一成像域
 
 ## 6. 推荐的结构化输出格式
 
@@ -242,26 +253,40 @@
 
 ## 7. Prompt 生成策略
 
+当前 prompt 策略改为“单图精确描述驱动”：
+
+1. 不先套大类模板
+2. 先解析当前参考图的具体成像属性
+3. 再基于这张图的属性拼装动态 prompt
+
 推荐把最终 prompt 拆成四段：
 
-1. 成像域锁定
-2. 背景与风格锁定
-3. 内容变化指令
+1. 当前单图的成像域锁定
+2. 当前单图的背景与风格锁定
+3. 当前单图的主体与变化指令
 4. 禁止项
 
-### 7.1 Prompt 模板
+### 7.1 动态 Prompt 模板
 
 ```text
-Edit this microscopy image.
+Edit this microscopy image based on the reference.
 
-Keep the same microscopy modality, magnification feel, background tone, illumination pattern, blur level, contrast, noise character, and overall visual style as the reference image.
+Keep the same microscopy modality, acquisition style, magnification feel, background tone, illumination pattern, blur level, contrast level, noise character, and overall visual style as the reference image.
+
+Preserve these fixed attributes from the reference:
+- background: {background_tone_and_texture}
+- illumination: {illumination}
+- color and tone: {color_mode}
+- focus and blur: {focus_level}
+- noise and contrast: {noise_contrast_profile}
+- biological object type: {object_type}
 
 Generate a new experimental result within the same image domain:
-- keep the same type of biological structures and the same acquisition style
-- clearly change the number of visible objects
-- change object sizes within a realistic range
+- clearly change the number of visible objects from the reference
+- change object sizes within a realistic range for this image type
 - rearrange object positions with a natural, non-regular spatial distribution
-- introduce moderate local morphology variation while staying realistic for this imaging type
+- change local clustering pattern and local density
+- introduce realistic local morphology variation while staying consistent with this imaging type
 - make the output obviously different from the reference image, not a near-copy
 
 Do not change the background style or imaging modality.
@@ -274,8 +299,33 @@ Do not add text, markers, artificial edges, strong outlines, or non-biological o
 sharp contour, hard edge, halo artifact, oversharpening, cartoon texture,
 synthetic pattern, repeated clone artifacts, grid artifact, mosaic artifact,
 text, watermark, labels, ruler overlay, non-biological objects,
-wrong microscopy modality, dramatic color shift, unrealistic contrast
+wrong microscopy modality, dramatic color shift, unrealistic contrast,
+background replacement, illumination mismatch, copied object layout
 ```
+
+### 7.3 动态调整原则
+
+每张图的 prompt 都应动态调整以下字段：
+
+- `background_tone_and_texture`
+- `illumination`
+- `color_mode`
+- `focus_level`
+- `noise_contrast_profile`
+- `object_type`
+- `object_count_estimate`
+- `density_level`
+- `spatial_pattern`
+- `shape_profile`
+- `count_delta_range`
+- `size_delta_range`
+- `layout_change_strength`
+- `morphology_change_strength`
+
+也就是说：
+
+- 每张图都要动态调整
+- 但所有动态变化都必须服从第 5.4 节的硬约束
 
 ## 8. 单图处理建议流程
 
@@ -285,14 +335,14 @@ wrong microscopy modality, dramatic color shift, unrealistic contrast
 
 输入参考图，先得到结构化描述：
 
-- 判定成像类型
+- 判定当前图像的具体显微成像类型
 - 判定背景和成像风格
 - 估计主体数量、密度、尺度和分布
 - 给出允许变化范围
 
 ### 阶段 B：条件生成
 
-把“参考图 + 结构化描述 + prompt + negative prompt”一起送入生成模型。
+把“参考图 + 结构化描述 + 动态 prompt + negative prompt”一起送入生成模型。
 
 这样做的好处是：
 
@@ -305,7 +355,8 @@ wrong microscopy modality, dramatic color shift, unrealistic contrast
 每张生成图至少检查四项：
 
 - 是否仍属于同一显微成像类型
-- 是否保留了原背景、色调和成像风格
+- 是否保留了原背景、照明、色调和成像风格
+- 是否保留了同层级的模糊、噪声和对比度
 - 是否与参考图有明显差异，而不是轻微平移或局部复制
 - 是否出现伪影，如重复克隆、边缘发光、过锐化、异常纹理
 
@@ -323,29 +374,32 @@ wrong microscopy modality, dramatic color shift, unrealistic contrast
 
 ### 数据筛选
 
-- 每个类块先取最多 `4` 张
-- 再从大于等于 `5` 张的类块里补 `284` 张
-- 类块内优先覆盖不同 `<code>` 前缀，再看质量
+- 使用 `train/Micro/image`
+- 全局按 `1, 4, 7, 10, ...` 取样
+- 先得到约 `2838` 张参考图
+- 质量控制优先，如果某张图质量差则先剔除
 
 ### 单图生成
 
 - 先为每张参考图输出一份结构化描述 JSON
-- 再把 JSON 映射成固定模板 prompt
+- 直接基于单图结构化描述生成动态 prompt
 - prompt 重点写“保持成像域不变，只改变结果形态”
+- 每张图都必须满足第 5.4 节的硬约束
 
 ### 评估
 
-- 每个主要前缀先抽 `20` 到 `50` 张做小规模试生成
-- 先人工判断哪些前缀最稳定、哪些最容易风格漂移
-- 再决定是否对不同前缀使用不同 prompt 模板
+- 先做 `3` 张代表图试生成
+- 3 张图都按单图动态 prompt 生成
+- 先人工判断哪些图最容易风格漂移、哪些图最容易改动不足
+- 再决定是否需要在后续阶段引入子模板
 
 ## 11. 需要确认的关键点
 
 在正式执行前，建议先确认四件事：
 
-1. 文件名中的 `<code>` 前缀是否确实对应成像子类型或采集模板
-2. 是否允许彩色染色图、荧光图和灰度 brightfield 图混在同一批生成任务里
-3. 3000 张是“3000 张参考图各生成 1 张”，还是“总共生成 3000 张新图”
-4. 后续是否希望把结构化描述固定成机器可读 JSON，以便批量跑
+1. 筛选是否正式固定为：训练集内全局“每三个选一个”
+2. 是否接受首轮参考图数量约为 `2838`
+3. 3 图测试是否直接按“单图动态 prompt”执行，而不先分大类模板
+4. 后续结构化描述是否固定成机器可读 JSON，以便批量跑
 
-如果这四点成立，这个方案可以直接进入下一步：把筛选规则和结构化字段再压成一版可执行规范。
+如果这四点成立，这个方案就可以进入下一步：给出最终筛选规范和首轮 3 图动态 prompt 草案。
