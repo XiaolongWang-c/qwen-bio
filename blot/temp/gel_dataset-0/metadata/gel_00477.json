@@ -1,0 +1,29 @@
+{
+  "id": "gel_00477",
+  "synthetic": true,
+  "generator": "mock_gel_generator",
+  "parameters": {
+    "lanes": 12,
+    "lane_width": 31,
+    "lane_gap": 18,
+    "lane_offset": 3,
+    "background_mean": 0.7129940527871206,
+    "background_noise": 0.03913186552340501,
+    "blur_sigma": 0.7437117365230395,
+    "bands_per_lane": [
+      7,
+      5,
+      7,
+      2,
+      3,
+      4,
+      4,
+      7,
+      3,
+      6,
+      1,
+      5
+    ],
+    "seed": 81002388
+  }
+}

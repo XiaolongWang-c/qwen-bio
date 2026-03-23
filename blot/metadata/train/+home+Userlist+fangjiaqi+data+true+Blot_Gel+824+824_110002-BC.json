@@ -1,0 +1,121 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+824+824_110002-BC.png",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+824+824_110002-BC.png",
+    "width": 547,
+    "height": 229,
+    "lane_positions": [
+      60,
+      160,
+      222,
+      284,
+      492
+    ],
+    "lane_count": 5,
+    "lane_width": 64,
+    "lane_spacing": 108.0,
+    "band_positions": [
+      [
+        12,
+        45,
+        87,
+        114,
+        164
+      ],
+      [
+        58,
+        88,
+        113,
+        162
+      ],
+      [
+        87,
+        114,
+        163,
+        194
+      ],
+      [
+        86,
+        114,
+        163,
+        194
+      ],
+      [
+        48,
+        80,
+        108,
+        156
+      ]
+    ],
+    "band_mean": 4.2,
+    "band_y_pool": [
+      12,
+      45,
+      48,
+      58,
+      80,
+      86,
+      87,
+      88,
+      108,
+      113,
+      114,
+      156,
+      162,
+      163,
+      164,
+      194
+    ],
+    "intensity_mean": 0.2411621663683936,
+    "thickness_mean": 9.776395728875169,
+    "thickness_std": 1.8082576046782997,
+    "thin_band_ratio": 0.047619047619047616,
+    "background_mean": 0.8490680456161499,
+    "background_noise": 0.028352173045277596,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.2
+  },
+  "sampled_parameters": {
+    "width": 547,
+    "height": 229,
+    "lanes": 6,
+    "lane_width": 63,
+    "lane_spacing": 104,
+    "bands_per_lane": [
+      4,
+      4,
+      5,
+      5,
+      5,
+      5
+    ],
+    "intensity_mean": 0.2920548268449012,
+    "thickness_mean": 9.282970181984458,
+    "thickness_std": 1.8082576046782997,
+    "thin_band_ratio": 0.15,
+    "background": 0.8395279252708889,
+    "noise": 0.020196008585951046,
+    "blur": 1.3534169873690067,
+    "sharpness_score": 0.2,
+    "band_y_pool": [
+      12,
+      45,
+      48,
+      58,
+      80,
+      86,
+      87,
+      88,
+      108,
+      113,
+      114,
+      156,
+      162,
+      163,
+      164,
+      194
+    ],
+    "smear_probability": 0.25
+  }
+}

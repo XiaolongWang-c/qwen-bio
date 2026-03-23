@@ -1,0 +1,21 @@
+{
+  "id": "gel_01197",
+  "synthetic": true,
+  "parameters": {
+    "width": 270,
+    "height": 49,
+    "lanes": 3,
+    "lane_width": 42,
+    "lane_spacing": 63,
+    "bands_per_lane": [
+      3,
+      2,
+      1
+    ],
+    "intensity_mean": 0.45961703431372547,
+    "thickness_mean": 7.5,
+    "background": 0.7443918270936041,
+    "noise": 0.026943045605793345,
+    "blur": 1.2159309047575158
+  }
+}

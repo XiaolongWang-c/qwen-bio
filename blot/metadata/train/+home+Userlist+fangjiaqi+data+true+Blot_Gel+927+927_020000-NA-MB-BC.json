@@ -1,0 +1,84 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+927+927_020000-NA-MB-BC.png",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+927+927_020000-NA-MB-BC.png",
+    "width": 195,
+    "height": 70,
+    "lane_positions": [
+      29,
+      47,
+      91,
+      118,
+      173
+    ],
+    "lane_count": 5,
+    "lane_width": 21,
+    "lane_spacing": 36.0,
+    "band_positions": [
+      [
+        4,
+        40
+      ],
+      [
+        4,
+        40
+      ],
+      [
+        38
+      ],
+      [
+        35
+      ],
+      [
+        32
+      ]
+    ],
+    "band_mean": 1.4,
+    "band_y_pool": [
+      4,
+      32,
+      35,
+      38,
+      40
+    ],
+    "intensity_mean": 0.41000000000000003,
+    "thickness_mean": 11.145387962241054,
+    "thickness_std": 1.4729793843417853,
+    "thin_band_ratio": 0.14285714285714285,
+    "background_mean": 0.8908989429473877,
+    "background_noise": 0.0429980531334877,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.2
+  },
+  "sampled_parameters": {
+    "width": 195,
+    "height": 70,
+    "lanes": 5,
+    "lane_width": 22,
+    "lane_spacing": 35,
+    "bands_per_lane": [
+      1,
+      1,
+      2,
+      2,
+      1
+    ],
+    "intensity_mean": 0.3783784056817631,
+    "thickness_mean": 11.125858817973018,
+    "thickness_std": 1.4729793843417853,
+    "thin_band_ratio": 0.15,
+    "background": 0.8740014790999049,
+    "noise": 0.04669108552282189,
+    "blur": 1.3757783853033452,
+    "sharpness_score": 0.2,
+    "band_y_pool": [
+      4,
+      32,
+      35,
+      38,
+      40
+    ],
+    "smear_probability": 0.25
+  }
+}

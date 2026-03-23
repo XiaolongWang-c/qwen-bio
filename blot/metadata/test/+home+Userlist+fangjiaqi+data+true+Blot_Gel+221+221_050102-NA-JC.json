@@ -1,0 +1,61 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+221+221_050102-NA-JC.jpg",
+    "split": "test",
+    "source_path": "blot/test/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+221+221_050102-NA-JC.jpg",
+    "width": 197,
+    "height": 52,
+    "lane_positions": [
+      22,
+      162
+    ],
+    "lane_count": 2,
+    "lane_width": 84,
+    "lane_spacing": 140.0,
+    "band_positions": [
+      [
+        30
+      ],
+      [
+        19
+      ]
+    ],
+    "band_mean": 1.0,
+    "band_y_pool": [
+      19,
+      30
+    ],
+    "intensity_mean": 0.30500000000000005,
+    "thickness_mean": 12.0,
+    "thickness_std": 0.0,
+    "thin_band_ratio": 0.0,
+    "background_mean": 0.918394148349762,
+    "background_noise": 0.01694311760365963,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.2
+  },
+  "sampled_parameters": {
+    "width": 197,
+    "height": 52,
+    "lanes": 2,
+    "lane_width": 83,
+    "lane_spacing": 141,
+    "bands_per_lane": [
+      3,
+      1
+    ],
+    "intensity_mean": 0.29836994111768833,
+    "thickness_mean": 12.0,
+    "thickness_std": 0.6,
+    "thin_band_ratio": 0.15,
+    "background": 0.88,
+    "noise": 0.016550133804494334,
+    "blur": 1.4290408469753038,
+    "sharpness_score": 0.2,
+    "band_y_pool": [
+      19,
+      30
+    ],
+    "smear_probability": 0.25
+  }
+}

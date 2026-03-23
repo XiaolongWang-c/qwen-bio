@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-03-23T22:02:11",
+  "seed": 20260323,
+  "subset_train_count": 2400,
+  "subset_test_count": 600,
+  "train": {
+    "processed": 2400,
+    "lane_count_mean": 5.212916666666667,
+    "band_mean": 1.4252579365079365,
+    "thickness_mean": 9.291739366237179,
+    "thin_band_ratio_mean": 0.1429517142469653,
+    "blur_mean": 1.445337936075261
+  },
+  "test": {
+    "processed": 600,
+    "lane_count_mean": 5.198333333333333,
+    "band_mean": 1.5050304834054833,
+    "thickness_mean": 9.182009194986222,
+    "thin_band_ratio_mean": 0.1547889168301345,
+    "blur_mean": 1.4451018727859006
+  },
+  "overall": {
+    "processed": 3000
+  },
+  "preview_montage": "blot/split_records/preview_montage.png"
+}

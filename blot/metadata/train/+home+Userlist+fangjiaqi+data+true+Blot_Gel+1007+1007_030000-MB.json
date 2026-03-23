@@ -1,0 +1,137 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1007+1007_030000-MB.png",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+1007+1007_030000-MB.png",
+    "width": 362,
+    "height": 338,
+    "lane_positions": [
+      17,
+      87,
+      139,
+      219,
+      271
+    ],
+    "lane_count": 5,
+    "lane_width": 38,
+    "lane_spacing": 63.5,
+    "band_positions": [
+      [
+        31,
+        85,
+        145,
+        208,
+        300
+      ],
+      [
+        79,
+        152,
+        208,
+        267
+      ],
+      [
+        77,
+        112,
+        160,
+        206,
+        255
+      ],
+      [
+        59,
+        108,
+        174,
+        208,
+        267,
+        302
+      ],
+      [
+        20,
+        83,
+        126,
+        182,
+        234,
+        267
+      ]
+    ],
+    "band_mean": 5.2,
+    "band_y_pool": [
+      20,
+      31,
+      59,
+      77,
+      79,
+      83,
+      85,
+      108,
+      112,
+      126,
+      145,
+      152,
+      160,
+      174,
+      182,
+      206,
+      208,
+      234,
+      255,
+      267,
+      300,
+      302
+    ],
+    "intensity_mean": 0.1848706969848046,
+    "thickness_mean": 10.152702260430885,
+    "thickness_std": 1.979036307174479,
+    "thin_band_ratio": 0.07692307692307693,
+    "background_mean": 0.8841595649719238,
+    "background_noise": 0.015945157036185265,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.2
+  },
+  "sampled_parameters": {
+    "width": 362,
+    "height": 338,
+    "lanes": 5,
+    "lane_width": 40,
+    "lane_spacing": 60,
+    "bands_per_lane": [
+      5,
+      5,
+      4,
+      5,
+      4
+    ],
+    "intensity_mean": 0.21875329445503378,
+    "thickness_mean": 9.95009134185287,
+    "thickness_std": 1.979036307174479,
+    "thin_band_ratio": 0.15,
+    "background": 0.88,
+    "noise": 0.022416150788520287,
+    "blur": 1.4754822694507628,
+    "sharpness_score": 0.2,
+    "band_y_pool": [
+      20,
+      31,
+      59,
+      77,
+      79,
+      83,
+      85,
+      108,
+      112,
+      126,
+      145,
+      152,
+      160,
+      174,
+      182,
+      206,
+      208,
+      234,
+      255,
+      267,
+      300,
+      302
+    ],
+    "smear_probability": 0.25
+  }
+}

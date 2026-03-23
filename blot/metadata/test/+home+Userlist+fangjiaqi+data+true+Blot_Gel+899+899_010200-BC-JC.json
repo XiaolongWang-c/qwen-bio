@@ -1,0 +1,113 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+899+899_010200-BC-JC.jpg",
+    "split": "test",
+    "source_path": "blot/test/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+899+899_010200-BC-JC.jpg",
+    "width": 405,
+    "height": 189,
+    "lane_positions": [
+      62,
+      139,
+      233,
+      314,
+      356,
+      395
+    ],
+    "lane_count": 6,
+    "lane_width": 39,
+    "lane_spacing": 66.6,
+    "band_positions": [
+      [
+        32,
+        76,
+        142
+      ],
+      [
+        37,
+        75,
+        145
+      ],
+      [
+        12,
+        94,
+        140
+      ],
+      [
+        23,
+        145
+      ],
+      [
+        55,
+        109,
+        147
+      ],
+      [
+        109,
+        147
+      ]
+    ],
+    "band_mean": 2.6666666666666665,
+    "band_y_pool": [
+      12,
+      23,
+      32,
+      37,
+      55,
+      75,
+      76,
+      94,
+      109,
+      140,
+      142,
+      145,
+      147
+    ],
+    "intensity_mean": 0.3787602949887514,
+    "thickness_mean": 9.999752178377264,
+    "thickness_std": 3.661644794064511,
+    "thin_band_ratio": 0.1875,
+    "background_mean": 0.7319891452789307,
+    "background_noise": 0.05153701826930046,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.3800800323486328
+  },
+  "sampled_parameters": {
+    "width": 405,
+    "height": 189,
+    "lanes": 6,
+    "lane_width": 39,
+    "lane_spacing": 63,
+    "bands_per_lane": [
+      2,
+      2,
+      3,
+      2,
+      2,
+      3
+    ],
+    "intensity_mean": 0.3800878999425765,
+    "thickness_mean": 12.0,
+    "thickness_std": 3.0,
+    "thin_band_ratio": 0.1875,
+    "background": 0.7395058568886242,
+    "noise": 0.05,
+    "blur": 1.4203172175077434,
+    "sharpness_score": 0.3800800323486328,
+    "band_y_pool": [
+      12,
+      23,
+      32,
+      37,
+      55,
+      75,
+      76,
+      94,
+      109,
+      140,
+      142,
+      145,
+      147
+    ],
+    "smear_probability": 0.25
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+131+131_050002-NA-MB-BC-JC.jpg",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+131+131_050002-NA-MB-BC-JC.jpg",
+    "width": 451,
+    "height": 75,
+    "lane_positions": [
+      37,
+      74,
+      126,
+      184,
+      248,
+      292,
+      355,
+      410
+    ],
+    "lane_count": 8,
+    "lane_width": 31,
+    "lane_spacing": 53.285714285714285,
+    "band_positions": [
+      [
+        28,
+        52
+      ],
+      [
+        27,
+        52
+      ],
+      [
+        28,
+        53
+      ],
+      [
+        28,
+        52
+      ],
+      [
+        27,
+        51
+      ],
+      [
+        27,
+        51
+      ],
+      [
+        25,
+        50
+      ],
+      [
+        23,
+        48
+      ]
+    ],
+    "band_mean": 2.0,
+    "band_y_pool": [
+      23,
+      25,
+      27,
+      28,
+      48,
+      50,
+      51,
+      52,
+      53
+    ],
+    "intensity_mean": 0.21326492074877024,
+    "thickness_mean": 10.368708567616329,
+    "thickness_std": 0.6811412430796444,
+    "thin_band_ratio": 0.0,
+    "background_mean": 0.6320750117301941,
+    "background_noise": 0.02272583357989788,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.2
+  },
+  "sampled_parameters": {
+    "width": 451,
+    "height": 75,
+    "lanes": 8,
+    "lane_width": 31,
+    "lane_spacing": 53,
+    "bands_per_lane": [
+      2,
+      3,
+      2,
+      3,
+      2,
+      2,
+      2,
+      3
+    ],
+    "intensity_mean": 0.24972222782788817,
+    "thickness_mean": 9.829353282115608,
+    "thickness_std": 0.6811412430796444,
+    "thin_band_ratio": 0.15,
+    "background": 0.630421406795861,
+    "noise": 0.02104481745428389,
+    "blur": 1.4179769388721832,
+    "sharpness_score": 0.2,
+    "band_y_pool": [
+      23,
+      25,
+      27,
+      28,
+      48,
+      50,
+      51,
+      52,
+      53
+    ],
+    "smear_probability": 0.25
+  }
+}

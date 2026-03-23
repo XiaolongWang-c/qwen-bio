@@ -1,0 +1,44 @@
+[
+  {
+    "split": "train",
+    "reference": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_020000-MB-BC.png",
+    "generated": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_020000-MB-BC.png",
+    "lane_count": 6,
+    "band_mean": 1.0
+  },
+  {
+    "split": "train",
+    "reference": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_030003-JC.jpg",
+    "generated": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_030003-JC.jpg",
+    "lane_count": 6,
+    "band_mean": 1.8333333333333333
+  },
+  {
+    "split": "train",
+    "reference": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_040000-NONE.png",
+    "generated": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_040000-NONE.png",
+    "lane_count": 6,
+    "band_mean": 1.0
+  },
+  {
+    "split": "test",
+    "reference": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_030000-NA-BC.png",
+    "generated": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_030000-NA-BC.png",
+    "lane_count": 6,
+    "band_mean": 1.0
+  },
+  {
+    "split": "test",
+    "reference": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_050102-NA-BC-JC.jpg",
+    "generated": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_050102-NA-BC-JC.jpg",
+    "lane_count": 4,
+    "band_mean": 1.0
+  },
+  {
+    "split": "test",
+    "reference": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_050103-NA-MB-BC-JC.jpg",
+    "generated": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1+1_050103-NA-MB-BC-JC.jpg",
+    "lane_count": 4,
+    "band_mean": 1.0
+  }
+]

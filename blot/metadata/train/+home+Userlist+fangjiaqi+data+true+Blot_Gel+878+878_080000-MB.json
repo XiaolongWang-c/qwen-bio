@@ -1,0 +1,134 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+878+878_080000-MB.png",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+878+878_080000-MB.png",
+    "width": 620,
+    "height": 122,
+    "lane_positions": [
+      6,
+      82,
+      164,
+      222,
+      277,
+      343,
+      406,
+      473,
+      528,
+      595
+    ],
+    "lane_count": 10,
+    "lane_width": 39,
+    "lane_spacing": 65.44444444444444,
+    "band_positions": [
+      [
+        18
+      ],
+      [
+        26
+      ],
+      [
+        4,
+        22,
+        37
+      ],
+      [
+        4,
+        21,
+        41
+      ],
+      [
+        4,
+        37
+      ],
+      [
+        4,
+        16,
+        34
+      ],
+      [
+        6,
+        40
+      ],
+      [
+        4,
+        34
+      ],
+      [
+        4,
+        36
+      ],
+      [
+        4,
+        21,
+        33
+      ]
+    ],
+    "band_mean": 2.2,
+    "band_y_pool": [
+      4,
+      6,
+      16,
+      18,
+      21,
+      22,
+      26,
+      33,
+      34,
+      36,
+      37,
+      40,
+      41
+    ],
+    "intensity_mean": 0.12178515848534353,
+    "thickness_mean": 8.6479157668045,
+    "thickness_std": 3.438520547624878,
+    "thin_band_ratio": 0.45454545454545453,
+    "background_mean": 0.1745181679725647,
+    "background_noise": 0.05778402462601662,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.4896664619445801
+  },
+  "sampled_parameters": {
+    "width": 620,
+    "height": 122,
+    "lanes": 9,
+    "lane_width": 39,
+    "lane_spacing": 64,
+    "bands_per_lane": [
+      2,
+      2,
+      2,
+      2,
+      3,
+      1,
+      4,
+      3,
+      2
+    ],
+    "intensity_mean": 0.15052926343945203,
+    "thickness_mean": 7.847286271260178,
+    "thickness_std": 3.0,
+    "thin_band_ratio": 0.45454545454545453,
+    "background": 0.55,
+    "noise": 0.05,
+    "blur": 1.5042604172015106,
+    "sharpness_score": 0.4896664619445801,
+    "band_y_pool": [
+      4,
+      6,
+      16,
+      18,
+      21,
+      22,
+      26,
+      33,
+      34,
+      36,
+      37,
+      40,
+      41
+    ],
+    "smear_probability": 0.25
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+1023+1023_010300-NA-BC.png",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+1023+1023_010300-NA-BC.png",
+    "width": 298,
+    "height": 137,
+    "lane_positions": [
+      27,
+      67,
+      114,
+      158,
+      200,
+      242,
+      285
+    ],
+    "lane_count": 7,
+    "lane_width": 25,
+    "lane_spacing": 43.0,
+    "band_positions": [
+      [
+        1,
+        35,
+        55,
+        93,
+        115
+      ],
+      [
+        1,
+        42,
+        92,
+        115
+      ],
+      [
+        1,
+        27,
+        91,
+        114
+      ],
+      [
+        1,
+        25,
+        91,
+        114
+      ],
+      [
+        1,
+        16,
+        95,
+        113
+      ],
+      [
+        1,
+        14,
+        114
+      ],
+      [
+        1,
+        25,
+        114,
+        127
+      ]
+    ],
+    "band_mean": 4.0,
+    "band_y_pool": [
+      1,
+      14,
+      16,
+      25,
+      27,
+      35,
+      42,
+      55,
+      91,
+      92,
+      93,
+      95,
+      113,
+      114,
+      115,
+      127
+    ],
+    "intensity_mean": 0.37099672675132755,
+    "thickness_mean": 6.759710673132277,
+    "thickness_std": 3.826937186932399,
+    "thin_band_ratio": 0.4642857142857143,
+    "background_mean": 0.7106823325157166,
+    "background_noise": 0.07300054281949997,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.8030287424723307
+  },
+  "sampled_parameters": {
+    "width": 298,
+    "height": 137,
+    "lanes": 8,
+    "lane_width": 25,
+    "lane_spacing": 44,
+    "bands_per_lane": [
+      3,
+      5,
+      5,
+      3,
+      3,
+      5,
+      4,
+      4
+    ],
+    "intensity_mean": 0.3969217916071236,
+    "thickness_mean": 7.873792307315274,
+    "thickness_std": 3.0,
+    "thin_band_ratio": 0.4642857142857143,
+    "background": 0.7237029485315137,
+    "noise": 0.05,
+    "blur": 1.3875116227925284,
+    "sharpness_score": 0.8030287424723307,
+    "band_y_pool": [
+      1,
+      14,
+      16,
+      25,
+      27,
+      35,
+      42,
+      55,
+      91,
+      92,
+      93,
+      95,
+      113,
+      114,
+      115,
+      127
+    ],
+    "smear_probability": 0.25
+  }
+}

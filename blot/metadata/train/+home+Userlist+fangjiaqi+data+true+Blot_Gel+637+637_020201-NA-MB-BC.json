@@ -1,0 +1,159 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+637+637_020201-NA-MB-BC.png",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+637+637_020201-NA-MB-BC.png",
+    "width": 252,
+    "height": 242,
+    "lane_positions": [
+      19,
+      59,
+      113,
+      139,
+      163,
+      200,
+      238
+    ],
+    "lane_count": 7,
+    "lane_width": 21,
+    "lane_spacing": 36.5,
+    "band_positions": [
+      [
+        6,
+        37,
+        120,
+        169
+      ],
+      [
+        8,
+        39,
+        74,
+        120,
+        183,
+        219
+      ],
+      [
+        17,
+        121,
+        175
+      ],
+      [
+        11,
+        39,
+        122,
+        176,
+        218
+      ],
+      [
+        11,
+        40,
+        73,
+        121,
+        148,
+        178
+      ],
+      [
+        12,
+        45,
+        122,
+        176,
+        222
+      ],
+      [
+        44,
+        124,
+        179
+      ]
+    ],
+    "band_mean": 4.571428571428571,
+    "band_y_pool": [
+      6,
+      8,
+      11,
+      12,
+      17,
+      37,
+      39,
+      40,
+      44,
+      45,
+      73,
+      74,
+      120,
+      121,
+      122,
+      124,
+      148,
+      169,
+      175,
+      176,
+      178,
+      179,
+      183,
+      218,
+      219,
+      222
+    ],
+    "intensity_mean": 0.3905706231668592,
+    "thickness_mean": 9.937493883966333,
+    "thickness_std": 2.566333864507947,
+    "thin_band_ratio": 0.21875,
+    "background_mean": 0.7037999629974365,
+    "background_noise": 0.04469155892729759,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.2563908100128174
+  },
+  "sampled_parameters": {
+    "width": 252,
+    "height": 242,
+    "lanes": 7,
+    "lane_width": 21,
+    "lane_spacing": 37,
+    "bands_per_lane": [
+      5,
+      5,
+      5,
+      4,
+      5,
+      4,
+      5
+    ],
+    "intensity_mean": 0.4168495344421822,
+    "thickness_mean": 10.234472346531238,
+    "thickness_std": 2.566333864507947,
+    "thin_band_ratio": 0.21875,
+    "background": 0.7020989209784028,
+    "noise": 0.043373972127053954,
+    "blur": 1.3172820393035147,
+    "sharpness_score": 0.2563908100128174,
+    "band_y_pool": [
+      6,
+      8,
+      11,
+      12,
+      17,
+      37,
+      39,
+      40,
+      44,
+      45,
+      73,
+      74,
+      120,
+      121,
+      122,
+      124,
+      148,
+      169,
+      175,
+      176,
+      178,
+      179,
+      183,
+      218,
+      219,
+      222
+    ],
+    "smear_probability": 0.25
+  }
+}

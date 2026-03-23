@@ -1,0 +1,118 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+426+426_020100-JC.jpg",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+426+426_020100-JC.jpg",
+    "width": 428,
+    "height": 73,
+    "lane_positions": [
+      10,
+      49,
+      109,
+      186,
+      290,
+      330,
+      377,
+      416
+    ],
+    "lane_count": 8,
+    "lane_width": 34,
+    "lane_spacing": 58.0,
+    "band_positions": [
+      [
+        31,
+        59
+      ],
+      [
+        32,
+        60
+      ],
+      [
+        34,
+        49,
+        62
+      ],
+      [
+        33,
+        61
+      ],
+      [
+        32,
+        61
+      ],
+      [
+        32,
+        48,
+        60
+      ],
+      [
+        31,
+        60
+      ],
+      [
+        31,
+        48,
+        59
+      ]
+    ],
+    "band_mean": 2.375,
+    "band_y_pool": [
+      31,
+      32,
+      33,
+      34,
+      48,
+      49,
+      59,
+      60,
+      61,
+      62
+    ],
+    "intensity_mean": 0.37508294300029155,
+    "thickness_mean": 7.485105877135628,
+    "thickness_std": 3.871366632580767,
+    "thin_band_ratio": 0.5789473684210527,
+    "background_mean": 0.8869955539703369,
+    "background_noise": 0.05521688610315323,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.3921897252400716
+  },
+  "sampled_parameters": {
+    "width": 428,
+    "height": 73,
+    "lanes": 8,
+    "lane_width": 32,
+    "lane_spacing": 59,
+    "bands_per_lane": [
+      2,
+      2,
+      2,
+      2,
+      3,
+      2,
+      3,
+      2
+    ],
+    "intensity_mean": 0.3750899189509544,
+    "thickness_mean": 8.681078673063752,
+    "thickness_std": 3.0,
+    "thin_band_ratio": 0.5789473684210527,
+    "background": 0.8799266775451215,
+    "noise": 0.05,
+    "blur": 1.4906000882035917,
+    "sharpness_score": 0.3921897252400716,
+    "band_y_pool": [
+      31,
+      32,
+      33,
+      34,
+      48,
+      49,
+      59,
+      60,
+      61,
+      62
+    ],
+    "smear_probability": 0.25
+  }
+}

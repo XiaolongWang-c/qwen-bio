@@ -1,0 +1,51 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+582+582_030004-MB-JC.jpg",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+582+582_030004-MB-JC.jpg",
+    "width": 114,
+    "height": 38,
+    "lane_positions": [
+      3,
+      59
+    ],
+    "lane_count": 2,
+    "lane_width": 33,
+    "lane_spacing": 56.0,
+    "band_positions": [
+      [],
+      []
+    ],
+    "band_mean": 0.0,
+    "band_y_pool": [],
+    "intensity_mean": 0.22,
+    "thickness_mean": 3.5,
+    "thickness_std": 1.0,
+    "thin_band_ratio": 0.35,
+    "background_mean": 0.3092774450778961,
+    "background_noise": 0.03924493119120598,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.38365475336710614
+  },
+  "sampled_parameters": {
+    "width": 114,
+    "height": 38,
+    "lanes": 2,
+    "lane_width": 32,
+    "lane_spacing": 53,
+    "bands_per_lane": [
+      1,
+      1
+    ],
+    "intensity_mean": 0.20436494803383753,
+    "thickness_mean": 2.957578784100125,
+    "thickness_std": 1.0,
+    "thin_band_ratio": 0.35,
+    "background": 0.55,
+    "noise": 0.04289364497906841,
+    "blur": 1.5018107483803438,
+    "sharpness_score": 0.38365475336710614,
+    "band_y_pool": [],
+    "smear_probability": 0.25
+  }
+}

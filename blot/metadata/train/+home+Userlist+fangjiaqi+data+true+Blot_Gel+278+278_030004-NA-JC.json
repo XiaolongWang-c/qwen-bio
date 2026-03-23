@@ -1,0 +1,115 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+278+278_030004-NA-JC.jpg",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+278+278_030004-NA-JC.jpg",
+    "width": 562,
+    "height": 32,
+    "lane_positions": [
+      18,
+      72,
+      130,
+      214,
+      267,
+      324,
+      380,
+      440,
+      493,
+      550
+    ],
+    "lane_count": 10,
+    "lane_width": 35,
+    "lane_spacing": 59.111111111111114,
+    "band_positions": [
+      [
+        2,
+        15
+      ],
+      [
+        2,
+        16
+      ],
+      [
+        2,
+        16
+      ],
+      [
+        2,
+        16
+      ],
+      [
+        2,
+        15
+      ],
+      [
+        2,
+        17
+      ],
+      [
+        2,
+        17
+      ],
+      [
+        2,
+        17
+      ],
+      [
+        2,
+        17
+      ],
+      [
+        2,
+        16
+      ]
+    ],
+    "band_mean": 2.0,
+    "band_y_pool": [
+      2,
+      15,
+      16,
+      17
+    ],
+    "intensity_mean": 0.17375325250625612,
+    "thickness_mean": 5.730172806100986,
+    "thickness_std": 3.1641765017435715,
+    "thin_band_ratio": 0.5,
+    "background_mean": 0.9324172735214233,
+    "background_noise": 0.06029514595866203,
+    "blur_sigma": 1.1523576779166858,
+    "sharpness_score": 2.7121899922688804
+  },
+  "sampled_parameters": {
+    "width": 562,
+    "height": 32,
+    "lanes": 10,
+    "lane_width": 36,
+    "lane_spacing": 58,
+    "bands_per_lane": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      3,
+      2,
+      3
+    ],
+    "intensity_mean": 0.1940724205225588,
+    "thickness_mean": 4.31352992949549,
+    "thickness_std": 3.0,
+    "thin_band_ratio": 0.5,
+    "background": 0.88,
+    "noise": 0.05,
+    "blur": 1.101852387147765,
+    "sharpness_score": 2.7121899922688804,
+    "band_y_pool": [
+      2,
+      15,
+      16,
+      17
+    ],
+    "smear_probability": 0.25
+  }
+}

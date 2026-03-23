@@ -1,0 +1,114 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+678+678_030202-BC.png",
+    "split": "test",
+    "source_path": "blot/test/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+678+678_030202-BC.png",
+    "width": 150,
+    "height": 47,
+    "lane_positions": [
+      2,
+      27,
+      40,
+      64,
+      80,
+      100,
+      114,
+      140
+    ],
+    "lane_count": 8,
+    "lane_width": 11,
+    "lane_spacing": 19.714285714285715,
+    "band_positions": [
+      [
+        2,
+        17
+      ],
+      [
+        2,
+        18
+      ],
+      [
+        2,
+        19,
+        41
+      ],
+      [
+        2,
+        41
+      ],
+      [
+        2,
+        20
+      ],
+      [
+        2,
+        18
+      ],
+      [
+        2,
+        18,
+        38
+      ],
+      [
+        2,
+        17,
+        37
+      ]
+    ],
+    "band_mean": 2.375,
+    "band_y_pool": [
+      2,
+      17,
+      18,
+      19,
+      20,
+      37,
+      38,
+      41
+    ],
+    "intensity_mean": 0.30198093726446756,
+    "thickness_mean": 6.286868823440322,
+    "thickness_std": 4.33717840340885,
+    "thin_band_ratio": 0.5263157894736842,
+    "background_mean": 0.6059432029724121,
+    "background_noise": 0.07725276052951813,
+    "blur_sigma": 1.45,
+    "sharpness_score": 1.7075016021728515
+  },
+  "sampled_parameters": {
+    "width": 150,
+    "height": 47,
+    "lanes": 8,
+    "lane_width": 8,
+    "lane_spacing": 22,
+    "bands_per_lane": [
+      3,
+      3,
+      2,
+      3,
+      3,
+      2,
+      2,
+      2
+    ],
+    "intensity_mean": 0.313970264768878,
+    "thickness_mean": 5.637882783530353,
+    "thickness_std": 3.0,
+    "thin_band_ratio": 0.5263157894736842,
+    "background": 0.6091097243464619,
+    "noise": 0.05,
+    "blur": 1.4824444186602541,
+    "sharpness_score": 1.7075016021728515,
+    "band_y_pool": [
+      2,
+      17,
+      18,
+      19,
+      20,
+      37,
+      38,
+      41
+    ],
+    "smear_probability": 0.25
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+639+639_050000-BC-JC.jpg",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+639+639_050000-BC-JC.jpg",
+    "width": 294,
+    "height": 393,
+    "lane_positions": [
+      12,
+      42,
+      69,
+      102,
+      276
+    ],
+    "lane_count": 5,
+    "lane_width": 39,
+    "lane_spacing": 66.0,
+    "band_positions": [
+      [
+        18,
+        78,
+        132,
+        175,
+        248,
+        307
+      ],
+      [
+        16,
+        77,
+        132,
+        175,
+        248,
+        308
+      ],
+      [
+        11,
+        73,
+        114,
+        184,
+        248,
+        383
+      ],
+      [
+        9,
+        73,
+        113,
+        184,
+        248,
+        380
+      ],
+      [
+        80,
+        146,
+        238,
+        332,
+        379
+      ]
+    ],
+    "band_mean": 5.8,
+    "band_y_pool": [
+      9,
+      11,
+      16,
+      18,
+      73,
+      77,
+      78,
+      80,
+      113,
+      114,
+      132,
+      146,
+      175,
+      184,
+      238,
+      248,
+      307,
+      308,
+      332,
+      379,
+      380,
+      383
+    ],
+    "intensity_mean": 0.2941225592843417,
+    "thickness_mean": 9.621255452108244,
+    "thickness_std": 2.4316707040966037,
+    "thin_band_ratio": 0.20689655172413793,
+    "background_mean": 0.8149855136871338,
+    "background_noise": 0.015940099954605103,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.2
+  },
+  "sampled_parameters": {
+    "width": 294,
+    "height": 393,
+    "lanes": 5,
+    "lane_width": 38,
+    "lane_spacing": 65,
+    "bands_per_lane": [
+      7,
+      7,
+      6,
+      6,
+      6
+    ],
+    "intensity_mean": 0.308020064437041,
+    "thickness_mean": 8.63196861098324,
+    "thickness_std": 2.4316707040966037,
+    "thin_band_ratio": 0.20689655172413793,
+    "background": 0.8101098656603369,
+    "noise": 0.01710441849151778,
+    "blur": 1.3991145458256016,
+    "sharpness_score": 0.2,
+    "band_y_pool": [
+      9,
+      11,
+      16,
+      18,
+      73,
+      77,
+      78,
+      80,
+      113,
+      114,
+      132,
+      146,
+      175,
+      184,
+      238,
+      248,
+      307,
+      308,
+      332,
+      379,
+      380,
+      383
+    ],
+    "smear_probability": 0.25
+  }
+}

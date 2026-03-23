@@ -1,0 +1,112 @@
+{
+  "reference": {
+    "image_name": "+home+Userlist+fangjiaqi+data+true+Blot_Gel+704+704_040201-NA-MB.png",
+    "split": "train",
+    "source_path": "blot/train/image/+home+Userlist+fangjiaqi+data+true+Blot_Gel+704+704_040201-NA-MB.png",
+    "width": 241,
+    "height": 74,
+    "lane_positions": [
+      4,
+      38,
+      61,
+      82,
+      115,
+      135,
+      162,
+      187,
+      215
+    ],
+    "lane_count": 9,
+    "lane_width": 15,
+    "lane_spacing": 26.375,
+    "band_positions": [
+      [
+        3
+      ],
+      [
+        4,
+        37
+      ],
+      [
+        4,
+        37
+      ],
+      [
+        4,
+        40
+      ],
+      [
+        4,
+        39
+      ],
+      [
+        4,
+        41
+      ],
+      [
+        4,
+        41
+      ],
+      [
+        4,
+        41
+      ],
+      [
+        4,
+        41
+      ]
+    ],
+    "band_mean": 1.8888888888888888,
+    "band_y_pool": [
+      3,
+      4,
+      37,
+      39,
+      40,
+      41
+    ],
+    "intensity_mean": 0.4692818539984086,
+    "thickness_mean": 7.827312658531103,
+    "thickness_std": 3.940288341306633,
+    "thin_band_ratio": 0.5294117647058824,
+    "background_mean": 0.6512309312820435,
+    "background_noise": 0.05054997280240059,
+    "blur_sigma": 1.45,
+    "sharpness_score": 0.32923510869344075
+  },
+  "sampled_parameters": {
+    "width": 241,
+    "height": 74,
+    "lanes": 9,
+    "lane_width": 14,
+    "lane_spacing": 21,
+    "bands_per_lane": [
+      3,
+      2,
+      1,
+      2,
+      3,
+      2,
+      2,
+      1,
+      3
+    ],
+    "intensity_mean": 0.44857436344558804,
+    "thickness_mean": 8.312987604363455,
+    "thickness_std": 3.0,
+    "thin_band_ratio": 0.5294117647058824,
+    "background": 0.6512489566035848,
+    "noise": 0.05,
+    "blur": 1.4236610106888041,
+    "sharpness_score": 0.32923510869344075,
+    "band_y_pool": [
+      3,
+      4,
+      37,
+      39,
+      40,
+      41
+    ],
+    "smear_probability": 0.25
+  }
+}
