@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-04-03T11:09:27",
+  "dry_run": true,
+  "model_path": null,
+  "seed": 20260402,
+  "selection_stride": 3,
+  "selection_offset": 0,
+  "shard_count": 1,
+  "shard_index": 0,
+  "train": {
+    "split": "train",
+    "assigned": 2,
+    "generated": 0,
+    "skipped_existing": 0,
+    "failures": 0,
+    "preview_path": null,
+    "style_buckets": {
+      "grayscale": 2
+    }
+  },
+  "test": {
+    "split": "test",
+    "assigned": 2,
+    "generated": 0,
+    "skipped_existing": 0,
+    "failures": 0,
+    "preview_path": null,
+    "style_buckets": {
+      "grayscale": 2
+    }
+  },
+  "overall_assigned": 4,
+  "overall_generated": 0,
+  "overall_failures": 0
+}

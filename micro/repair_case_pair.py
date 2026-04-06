@@ -10,9 +10,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from micro.micro_qwen_dataset_pipeline import (
-    fuse_generated_with_source,
-)
+from micro.micro_qwen_dataset_pipeline import fuse_generated_with_source
+from micro.structure_core import DetectionConfig, classify_content_type, classify_style
 
 
 def build_args() -> argparse.Namespace:
@@ -34,10 +33,20 @@ def main() -> None:
     with Image.open(args.generated) as generated_image:
         generated_rgb = generated_image.convert("RGB")
 
-    fused_image, metrics = fuse_generated_with_source(source_rgb, generated_rgb, args)
+    style_bucket = classify_style(args.source)
+    content_type = classify_content_type(
+        args.source,
+        DetectionConfig(
+            mask_quantile=args.mask_quantile,
+            min_component_area_ratio=args.min_component_area_ratio,
+            detail_sigma=args.detail_sigma,
+        ),
+    )
+    fused_image, metrics = fuse_generated_with_source(source_rgb, generated_rgb, style_bucket, content_type, args)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     fused_image.save(args.output)
     print(f"saved: {args.output}")
+    print({"style_bucket": style_bucket, "content_type": content_type})
     print(metrics)
 
 

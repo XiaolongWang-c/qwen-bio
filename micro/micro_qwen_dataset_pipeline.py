@@ -20,25 +20,22 @@ VALID_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
 GRAYSCALE_CHANNEL_GAP = 6.0
 SINGLE_CHANNEL_RATIO = 1.65
 
-BASE_EDIT_INSTRUCTION = """Edit this microscopy image using the input image as a direct structural reference.
+BASE_EDIT_INSTRUCTION = """Edit this microscopy image using the input image as a style reference.
 
-- Keep every visible specimen present in the image. Do not erase, remove, or replace any existing cell, organoid, colony, or tissue region.
-- Keep the specimen count, global arrangement, major contours, object sizes, relative positions, crop, zoom, and perspective nearly unchanged.
-- Keep the background, blur, noise level, illumination, contrast, and imaging artifacts unchanged.
+- Keep the microscopy modality, acquisition style, crop, zoom, perspective, background appearance, illumination, blur, noise level, contrast, and imaging artifacts unchanged.
 - Keep any scale bar, panel letter, bounding box, arrow, text label, border, and overlay exactly unchanged.
-- Produce a new plausible capture of the same experiment, not a pixel-identical copy.
-- Only allow subtle local biological variation in boundary softness, internal texture, and intensity distribution.
-- Preserve the outer contour of each visible specimen and keep each specimen centroid in the same place.
-- Do not add or remove large structures.
-- Do not move specimens noticeably.
-- Do not create repeated patterns or synthetic-looking details.
+- Modify only the biological foreground region and generate a new plausible specimen appearance that is visibly different from the reference foreground.
+- The new foreground should still belong to the same experiment domain and the same microscopy style.
+- Do not replace the specimen region with empty smooth background.
+- Do not redraw the background or annotations.
+- Do not create repeated patterns, cartoon edges, synthetic textures, or non-biological structures.
 """
 
 STYLE_PROMPTS = {
     "grayscale": """- Preserve the original grayscale or brightfield appearance exactly.
 - Keep the same tone range and soft microscopy blur.
-- Keep faint low-contrast specimen texture visible.
-- Never turn specimen regions into empty smooth background.
+- Keep faint low-contrast specimen texture visible inside the edited foreground.
+- Keep the brightfield background unchanged.
 """,
     "fluorescence_multichannel": """- Preserve the exact fluorescence color mapping and channel composition.
 - Keep the black background and the same multi-channel visual balance.
@@ -48,11 +45,30 @@ STYLE_PROMPTS = {
 """,
 }
 
-NEGATIVE_PROMPT = """large structural change, different specimen count, moved objects, new region, missing region,
-changed crop, changed zoom, changed magnification, changed annotation, missing scale bar, changed overlay,
-false color mapping, inverted contrast, cartoon, illustration, painterly, sharp outlines, halo artifacts,
-grid pattern, repeated pattern, mosaic artifact, over-sharpening, ultra detailed, non-microscopy texture,
-empty background, blank field, removed cells, deleted organoid, missing specimen, smooth erased specimen region
+CONTENT_PROMPTS = {
+    "few_objects": """- Create clearly different biological objects in the foreground region.
+- You may change object count, size, shape, and relative placement naturally.
+- Keep the result sparse if the input is sparse.
+""",
+    "many_objects": """- Create a clearly different dense foreground pattern in the edited region.
+- You may change local density, clustering, and small-object arrangement naturally.
+- Keep the same overall microscopy domain and texture scale.
+""",
+    "mixed_cluster": """- Create a clearly different clustered biological foreground.
+- You may change cluster contour, internal texture, and local protrusions naturally.
+- Keep the same cluster-like scene type and imaging style.
+""",
+    "large_region": """- Create a clearly different continuous biological foreground region.
+- You may change boundary waviness, thickness, and local internal texture naturally.
+- Keep the same tissue-like or large-area scene type and imaging style.
+""",
+}
+
+NEGATIVE_PROMPT = """background replacement, changed annotation, missing scale bar, changed overlay,
+changed crop, changed zoom, changed magnification, empty background, blank field, removed specimen,
+deleted cell, deleted organoid, smooth erased specimen region, cartoon, illustration, painterly,
+sharp outlines, halo artifacts, grid pattern, repeated pattern, mosaic artifact, over-sharpening,
+ultra detailed, non-microscopy texture, false color mapping, inverted contrast, text artifact
 """
 
 
@@ -83,6 +99,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--detail-sigma", type=float, default=1.1)
     parser.add_argument("--mask-quantile", type=float, default=94.0)
     parser.add_argument("--min-component-area-ratio", type=float, default=0.002)
+    parser.add_argument("--selection-stride", type=int, default=3)
+    parser.add_argument("--selection-offset", type=int, default=0)
+    parser.add_argument("--roi-padding-ratio", type=float, default=0.18)
+    parser.add_argument("--roi-min-padding", type=int, default=20)
+    parser.add_argument("--foreground-dilation", type=int, default=6)
+    parser.add_argument("--annotation-border-ratio", type=float, default=0.12)
+    parser.add_argument("--max-retries", type=int, default=2)
+    parser.add_argument("--max-background-diff", type=float, default=2.8)
+    parser.add_argument("--max-annotation-diff", type=float, default=1.5)
+    parser.add_argument("--min-foreground-diff", type=float, default=7.5)
+    parser.add_argument("--min-coverage-ratio", type=float, default=0.45)
     parser.add_argument("--preview-count", type=int, default=8)
     parser.add_argument("--print-every", type=int, default=25)
     parser.add_argument("--limit", type=int, default=None)
@@ -146,11 +173,7 @@ def load_existing_manifest(manifest_path: Path) -> dict[str, Any] | None:
     return json.loads(manifest_path.read_text(encoding="utf-8"))
 
 
-def classify_style(image_path: Path) -> str:
-    with Image.open(image_path) as image:
-        rgb = ImageOps.contain(image.convert("RGB"), (128, 128))
-        array = np.asarray(rgb, dtype=np.float32)
-
+def classify_style_from_array(array: np.ndarray) -> str:
     channel_gap = (
         np.abs(array[:, :, 0] - array[:, :, 1]).mean()
         + np.abs(array[:, :, 1] - array[:, :, 2]).mean()
@@ -169,58 +192,43 @@ def classify_style(image_path: Path) -> str:
     return "fluorescence_multichannel"
 
 
-def proportional_quotas(group_sizes: dict[str, int], total_count: int) -> dict[str, int]:
-    total_available = sum(group_sizes.values())
-    if total_count > total_available:
-        raise ValueError(f"Requested {total_count} files but only found {total_available}.")
-
-    quotas: dict[str, int] = {}
-    remainders: list[tuple[float, str]] = []
-    assigned = 0
-
-    for bucket, size in group_sizes.items():
-        raw = total_count * size / total_available
-        quota = min(size, math.floor(raw))
-        quotas[bucket] = quota
-        assigned += quota
-        remainders.append((raw - quota, bucket))
-
-    remaining = total_count - assigned
-    for _, bucket in sorted(remainders, reverse=True):
-        if remaining == 0:
-            break
-        if quotas[bucket] >= group_sizes[bucket]:
-            continue
-        quotas[bucket] += 1
-        remaining -= 1
-
-    if sum(quotas.values()) != total_count:
-        raise RuntimeError("Failed to allocate exact sample quotas.")
-    return quotas
+def classify_style(image_path: Path) -> str:
+    with Image.open(image_path) as image:
+        rgb = ImageOps.contain(image.convert("RGB"), (128, 128))
+        array = np.asarray(rgb, dtype=np.float32)
+    return classify_style_from_array(array)
 
 
-def build_manifest(split: str, source_dir: Path, sample_count: int, seed: int) -> dict[str, Any]:
+def select_paths_by_stride(paths: list[Path], stride: int, offset: int) -> list[Path]:
+    if stride < 1:
+        raise ValueError("--selection-stride must be at least 1.")
+    if not 0 <= offset < stride:
+        raise ValueError("--selection-offset must satisfy 0 <= offset < --selection-stride.")
+    return [path for index, path in enumerate(paths) if index % stride == offset]
+
+
+def build_manifest(split: str, source_dir: Path, seed: int, selection_stride: int, selection_offset: int) -> dict[str, Any]:
     paths = list_images(source_dir)
-    grouped: dict[str, list[Path]] = defaultdict(list)
+    selected_paths = select_paths_by_stride(paths, selection_stride, selection_offset)
+    total_bucket_counts: Counter[str] = Counter()
+    sampled_bucket_counts: Counter[str] = Counter()
     for path in paths:
-        grouped[classify_style(path)].append(path)
-
-    quotas = proportional_quotas({bucket: len(items) for bucket, items in grouped.items()}, sample_count)
+        total_bucket_counts[classify_style(path)] += 1
     rng = random.Random(seed)
     sampled_entries: list[dict[str, Any]] = []
 
-    for bucket, bucket_paths in grouped.items():
-        chosen = rng.sample(bucket_paths, quotas[bucket])
-        chosen.sort(key=lambda item: item.name)
-        for path in chosen:
-            sampled_entries.append(
-                {
-                    "name": path.name,
-                    "source_path": str(path),
-                    "style_bucket": bucket,
-                    "seed": rng.randint(0, 2**31 - 1),
-                }
-            )
+    for global_index, path in enumerate(selected_paths):
+        bucket = classify_style(path)
+        sampled_bucket_counts[bucket] += 1
+        sampled_entries.append(
+            {
+                "name": path.name,
+                "source_path": str(path),
+                "style_bucket": bucket,
+                "seed": rng.randint(0, 2**31 - 1),
+                "global_pick_index": global_index,
+            }
+        )
 
     sampled_entries.sort(key=lambda item: item["name"])
     return {
@@ -229,9 +237,11 @@ def build_manifest(split: str, source_dir: Path, sample_count: int, seed: int) -
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "source_dir": str(source_dir),
         "total_available": len(paths),
+        "selection_stride": selection_stride,
+        "selection_offset": selection_offset,
         "sample_count": len(sampled_entries),
-        "bucket_counts_total": {bucket: len(bucket_paths) for bucket, bucket_paths in grouped.items()},
-        "bucket_counts_sampled": dict(Counter(item["style_bucket"] for item in sampled_entries)),
+        "bucket_counts_total": dict(total_bucket_counts),
+        "bucket_counts_sampled": dict(sampled_bucket_counts),
         "files": sampled_entries,
     }
 
@@ -239,8 +249,9 @@ def build_manifest(split: str, source_dir: Path, sample_count: int, seed: int) -
 def get_split_manifest(
     split: str,
     source_dir: Path,
-    sample_count: int,
     seed: int,
+    selection_stride: int,
+    selection_offset: int,
     manifest_path: Path,
     overwrite: bool,
 ) -> dict[str, Any]:
@@ -248,7 +259,7 @@ def get_split_manifest(
         existing = load_existing_manifest(manifest_path)
         if existing is not None:
             return existing
-    manifest = build_manifest(split, source_dir, sample_count, seed)
+    manifest = build_manifest(split, source_dir, seed, selection_stride, selection_offset)
     write_json(manifest_path, manifest)
     return manifest
 
@@ -274,8 +285,8 @@ def load_pipeline(model_path: str, torch_dtype_name: str, device_map: str) -> An
     )
 
 
-def build_prompt(style_bucket: str) -> str:
-    return BASE_EDIT_INSTRUCTION + "\n" + STYLE_PROMPTS[style_bucket]
+def build_prompt(style_bucket: str, content_type: str) -> str:
+    return BASE_EDIT_INSTRUCTION + "\n" + STYLE_PROMPTS[style_bucket] + "\n" + CONTENT_PROMPTS[content_type]
 
 
 def select_shard(items: list[dict[str, Any]], shard_count: int, shard_index: int) -> list[dict[str, Any]]:
@@ -334,6 +345,12 @@ def component_touches_border(component_mask: np.ndarray) -> bool:
     return ys.min() <= 1 or xs.min() <= 1 or ys.max() >= height - 2 or xs.max() >= width - 2
 
 
+def dilate_mask(mask: np.ndarray, iterations: int) -> np.ndarray:
+    if iterations <= 0:
+        return mask.astype(bool)
+    return binary_dilation(mask.astype(bool), iterations=iterations)
+
+
 def detect_foreground_mask(image: Image.Image, args: argparse.Namespace) -> np.ndarray:
     gray = np.asarray(image.convert("L"), dtype=np.float32)
     height, width = gray.shape
@@ -372,49 +389,191 @@ def detect_foreground_mask(image: Image.Image, args: argparse.Namespace) -> np.n
     return keep.astype(np.float32)
 
 
+def detect_annotation_mask(image: Image.Image, args: argparse.Namespace) -> np.ndarray:
+    rgb = np.asarray(image.convert("RGB"), dtype=np.uint8)
+    gray = np.asarray(image.convert("L"), dtype=np.uint8)
+    height, width = gray.shape
+    border = max(6, int(min(height, width) * args.annotation_border_ratio))
+
+    edge_zone = np.zeros_like(gray, dtype=bool)
+    edge_zone[:border, :] = True
+    edge_zone[-border:, :] = True
+    edge_zone[:, :border] = True
+    edge_zone[:, -border:] = True
+
+    extreme_gray = (gray <= 22) | (gray >= 233)
+    red_overlay = (rgb[:, :, 0] >= 150) & (rgb[:, :, 0] >= rgb[:, :, 1] + 50) & (rgb[:, :, 0] >= rgb[:, :, 2] + 50)
+    candidates = (extreme_gray & edge_zone) | red_overlay
+
+    labeled, component_count = label(candidates)
+    keep = np.zeros_like(candidates, dtype=bool)
+    max_area = max(16, int(height * width * 0.08))
+
+    for component_index in range(1, component_count + 1):
+        component_mask = labeled == component_index
+        area = int(component_mask.sum())
+        if area < 3 or area > max_area:
+            continue
+        ys, xs = np.where(component_mask)
+        if ys.size == 0:
+            continue
+        near_border = (
+            ys.min() < border
+            or xs.min() < border
+            or ys.max() >= height - border
+            or xs.max() >= width - border
+        )
+        if near_border or bool((component_mask & red_overlay).any()):
+            keep |= component_mask
+
+    if keep.any():
+        keep = binary_dilation(keep, iterations=1)
+    return keep.astype(np.float32)
+
+
+def classify_content_type_from_mask(mask: np.ndarray) -> str:
+    binary = mask > 0
+    coverage = float(binary.mean())
+    if coverage <= 0.01:
+        return "few_objects"
+
+    labeled, component_count = label(binary)
+    component_areas = [int((labeled == index).sum()) for index in range(1, component_count + 1)]
+    component_areas = [area for area in component_areas if area > 0]
+    if not component_areas:
+        return "few_objects"
+
+    component_areas.sort(reverse=True)
+    largest_ratio = component_areas[0] / max(sum(component_areas), 1)
+    large_components = sum(area >= component_areas[0] * 0.2 for area in component_areas)
+
+    if coverage >= 0.28 or largest_ratio >= 0.78:
+        return "large_region"
+    if largest_ratio >= 0.42 and large_components <= 4:
+        return "mixed_cluster"
+    if len(component_areas) >= 28:
+        return "many_objects"
+    if len(component_areas) <= 6:
+        return "few_objects"
+    return "many_objects" if coverage < 0.12 else "mixed_cluster"
+
+
 def low_high_frequency_decompose(rgb: np.ndarray, sigma: float) -> tuple[np.ndarray, np.ndarray]:
     low = np.stack([gaussian_filter(rgb[:, :, channel], sigma=sigma) for channel in range(rgb.shape[2])], axis=2)
     high = rgb - low
     return low, high
 
 
-def fuse_generated_with_source(
+def extract_edit_bbox(mask: np.ndarray, args: argparse.Namespace) -> tuple[int, int, int, int]:
+    binary = mask > 0
+    height, width = binary.shape
+    ys, xs = np.where(binary)
+    if ys.size == 0:
+        return (0, 0, width, height)
+
+    y0 = int(ys.min())
+    y1 = int(ys.max()) + 1
+    x0 = int(xs.min())
+    x1 = int(xs.max()) + 1
+    pad = max(args.roi_min_padding, int(max(y1 - y0, x1 - x0) * args.roi_padding_ratio))
+    return (
+        max(0, x0 - pad),
+        max(0, y0 - pad),
+        min(width, x1 + pad),
+        min(height, y1 + pad),
+    )
+
+
+def masked_mean_abs_diff(source_rgb: np.ndarray, target_rgb: np.ndarray, mask: np.ndarray) -> float:
+    binary = mask > 0
+    if not binary.any():
+        return 0.0
+    diff = np.abs(source_rgb - target_rgb).mean(axis=2)
+    return float(diff[binary].mean())
+
+
+def build_soft_alpha(mask: np.ndarray) -> np.ndarray:
+    sigma = max(1.0, min(mask.shape) / 40.0)
+    soft = gaussian_filter(mask.astype(np.float32), sigma=sigma)
+    max_value = float(soft.max())
+    if max_value > 1e-6:
+        soft = soft / max_value
+    return np.clip(soft, 0.0, 1.0)
+
+
+def composite_generated_roi(
+    source_image: Image.Image,
+    generated_roi_image: Image.Image,
+    foreground_mask: np.ndarray,
+    annotation_mask: np.ndarray,
+    bbox: tuple[int, int, int, int],
+    args: argparse.Namespace,
+) -> Image.Image:
+    x0, y0, x1, y1 = bbox
+    source_rgb = pil_to_float_rgb(source_image)
+    source_roi_rgb = source_rgb[y0:y1, x0:x1, :]
+    generated_roi = resize_like_source(Image.fromarray(source_roi_rgb.astype(np.uint8)), generated_roi_image)
+    generated_roi_rgb = pil_to_float_rgb(generated_roi)
+    generated_roi_rgb = match_channel_statistics(source_roi_rgb, generated_roi_rgb)
+
+    foreground_roi = foreground_mask[y0:y1, x0:x1] > 0
+    foreground_roi = dilate_mask(foreground_roi, args.foreground_dilation)
+    annotation_roi = annotation_mask[y0:y1, x0:x1] > 0
+    soft_alpha = build_soft_alpha(foreground_roi.astype(np.float32))
+    soft_alpha = np.where(annotation_roi, 0.0, soft_alpha)
+
+    composed_roi = source_roi_rgb * (1.0 - soft_alpha[:, :, None]) + generated_roi_rgb * soft_alpha[:, :, None]
+    composed_roi = np.where(annotation_roi[:, :, None], source_roi_rgb, composed_roi)
+
+    composed_full = source_rgb.copy()
+    composed_full[y0:y1, x0:x1, :] = composed_roi
+    return float_rgb_to_pil(composed_full)
+
+
+def evaluate_generation_quality(
     source_image: Image.Image,
     generated_image: Image.Image,
+    source_mask: np.ndarray,
+    annotation_mask: np.ndarray,
+    expected_style_bucket: str,
     args: argparse.Namespace,
-) -> tuple[Image.Image, dict[str, float | bool]]:
-    resized_generated = resize_like_source(source_image, generated_image)
+) -> dict[str, float | bool | str]:
     source_rgb = pil_to_float_rgb(source_image)
-    generated_rgb = pil_to_float_rgb(resized_generated)
-    generated_rgb = match_channel_statistics(source_rgb, generated_rgb)
+    generated_rgb = pil_to_float_rgb(generated_image)
+    protected_mask = dilate_mask((source_mask > 0) | (annotation_mask > 0), 2)
+    background_mask = (~protected_mask).astype(np.float32)
 
-    source_mask = detect_foreground_mask(source_image, args)
-    generated_mask = detect_foreground_mask(float_rgb_to_pil(generated_rgb), args)
+    foreground_diff = masked_mean_abs_diff(source_rgb, generated_rgb, source_mask)
+    background_diff = masked_mean_abs_diff(source_rgb, generated_rgb, background_mask)
+    annotation_diff = masked_mean_abs_diff(source_rgb, generated_rgb, annotation_mask)
 
-    source_low, source_high = low_high_frequency_decompose(source_rgb, sigma=args.detail_sigma)
-    generated_low, _ = low_high_frequency_decompose(generated_rgb, sigma=args.detail_sigma)
-    candidate = np.clip(generated_low + source_high, 0, 255)
+    generated_mask = detect_foreground_mask(generated_image, args)
+    source_coverage = float((source_mask > 0).mean())
+    generated_coverage = float((generated_mask > 0).mean())
+    coverage_ratio = generated_coverage / max(source_coverage, 1e-6)
+    output_style_bucket = classify_style_from_array(np.asarray(ImageOps.contain(generated_image.convert("RGB"), (128, 128)), dtype=np.float32))
+    style_consistent = output_style_bucket == expected_style_bucket
+    coverage_ok = source_coverage <= 0.005 or coverage_ratio >= args.min_coverage_ratio
 
-    source_coverage = float(source_mask.mean())
-    generated_coverage = float(generated_mask.mean())
-    collapse_detected = source_coverage > 0.01 and generated_coverage < source_coverage * 0.45
+    quality_pass = (
+        foreground_diff >= args.min_foreground_diff
+        and background_diff <= args.max_background_diff
+        and annotation_diff <= args.max_annotation_diff
+        and coverage_ok
+        and style_consistent
+    )
 
-    blend_strength = args.blend_strength
-    if collapse_detected:
-        blend_strength = min(blend_strength, 0.28)
-
-    soft_mask = gaussian_filter(source_mask, sigma=max(1.0, min(source_mask.shape) / 70.0))
-    alpha = np.clip(soft_mask[:, :, None] * blend_strength, 0.0, 1.0)
-    fused = source_rgb * (1.0 - alpha) + candidate * alpha
-    fused = np.where(source_mask[:, :, None] > 0, fused, source_rgb)
-
-    metrics: dict[str, float | bool] = {
+    return {
+        "foreground_diff": foreground_diff,
+        "background_diff": background_diff,
+        "annotation_diff": annotation_diff,
         "source_coverage": source_coverage,
         "generated_coverage": generated_coverage,
-        "collapse_detected": collapse_detected,
-        "blend_strength_used": float(blend_strength),
+        "coverage_ratio": coverage_ratio,
+        "output_style_bucket": output_style_bucket,
+        "style_consistent": style_consistent,
+        "quality_pass": quality_pass,
     }
-    return float_rgb_to_pil(fused), metrics
 
 
 def save_preview_pairs(pairs: list[tuple[Path, Path]], preview_path: Path) -> None:
@@ -492,31 +651,88 @@ def process_split(
                 preview_pairs.append((source_path, output_path))
             continue
 
-        prompt = build_prompt(item["style_bucket"])
-
         try:
             with Image.open(source_path) as image:
                 rgb = image.convert("RGB")
-                inputs = {
-                    "image": rgb,
-                    "prompt": prompt,
-                    "negative_prompt": NEGATIVE_PROMPT,
-                    "generator": torch.Generator(device="cpu").manual_seed(int(item["seed"])),
-                    "true_cfg_scale": args.true_cfg_scale,
-                    "num_inference_steps": args.num_inference_steps,
-                }
-                with torch.inference_mode():
-                    output = pipeline(**inputs)
-                raw_image = output.images[0].convert("RGB")
-                raw_image.save(raw_output_path)
-                fused_image, fusion_metrics = fuse_generated_with_source(rgb, raw_image, args)
-                fused_image.save(output_path)
+                source_mask = detect_foreground_mask(rgb, args)
+                annotation_mask = detect_annotation_mask(rgb, args)
+                content_type = classify_content_type_from_mask(source_mask)
+                edit_mask = dilate_mask(source_mask > 0, args.foreground_dilation).astype(np.float32)
+                bbox = extract_edit_bbox(edit_mask, args)
+                x0, y0, x1, y1 = bbox
+                roi_image = rgb.crop(bbox)
+                prompt = build_prompt(item["style_bucket"], content_type)
+
+                final_image = None
+                final_metrics: dict[str, Any] | None = None
+                last_error: str | None = None
+
+                for retry_index in range(args.max_retries + 1):
+                    attempt_seed = int(item["seed"]) + retry_index
+                    inputs = {
+                        "image": roi_image,
+                        "prompt": prompt,
+                        "negative_prompt": NEGATIVE_PROMPT,
+                        "generator": torch.Generator(device="cpu").manual_seed(attempt_seed),
+                        "true_cfg_scale": args.true_cfg_scale,
+                        "num_inference_steps": args.num_inference_steps,
+                    }
+                    with torch.inference_mode():
+                        output = pipeline(**inputs)
+
+                    generated_roi = output.images[0].convert("RGB")
+                    candidate_image = composite_generated_roi(
+                        source_image=rgb,
+                        generated_roi_image=generated_roi,
+                        foreground_mask=edit_mask,
+                        annotation_mask=annotation_mask,
+                        bbox=bbox,
+                        args=args,
+                    )
+                    candidate_metrics = evaluate_generation_quality(
+                        source_image=rgb,
+                        generated_image=candidate_image,
+                        source_mask=edit_mask,
+                        annotation_mask=annotation_mask,
+                        expected_style_bucket=item["style_bucket"],
+                        args=args,
+                    )
+                    candidate_metrics.update(
+                        {
+                            "content_type": content_type,
+                            "retry_index": retry_index,
+                            "bbox": [x0, y0, x1, y1],
+                        }
+                    )
+
+                    raw_output_path.parent.mkdir(parents=True, exist_ok=True)
+                    candidate_image.save(raw_output_path)
+
+                    if bool(candidate_metrics["quality_pass"]):
+                        final_image = candidate_image
+                        final_metrics = candidate_metrics
+                        break
+
+                    last_error = (
+                        f"quality gate failed: fg={candidate_metrics['foreground_diff']:.3f}, "
+                        f"bg={candidate_metrics['background_diff']:.3f}, "
+                        f"ann={candidate_metrics['annotation_diff']:.3f}, "
+                        f"coverage={candidate_metrics['coverage_ratio']:.3f}, "
+                        f"style={candidate_metrics['output_style_bucket']}"
+                    )
+                    final_image = candidate_image
+                    final_metrics = candidate_metrics
+
+                if final_image is None or final_metrics is None:
+                    raise RuntimeError(last_error or "generation did not produce an output")
+
+                final_image.save(output_path)
                 postprocess_metrics.append(
                     {
                         "split": split,
                         "name": item["name"],
                         "style_bucket": item["style_bucket"],
-                        **fusion_metrics,
+                        **final_metrics,
                     }
                 )
 
@@ -577,16 +793,18 @@ def main() -> None:
     train_manifest = get_split_manifest(
         split="train",
         source_dir=train_source,
-        sample_count=args.subset_train_count,
         seed=args.seed,
+        selection_stride=args.selection_stride,
+        selection_offset=args.selection_offset,
         manifest_path=records_dir / "train_manifest.json",
         overwrite=args.overwrite,
     )
     test_manifest = get_split_manifest(
         split="test",
         source_dir=test_source,
-        sample_count=args.subset_test_count,
         seed=args.seed + 1,
+        selection_stride=args.selection_stride,
+        selection_offset=args.selection_offset,
         manifest_path=records_dir / "test_manifest.json",
         overwrite=args.overwrite,
     )
@@ -639,8 +857,8 @@ def main() -> None:
         "dry_run": args.dry_run,
         "model_path": args.model_path if not args.dry_run else None,
         "seed": args.seed,
-        "subset_train_count": args.subset_train_count,
-        "subset_test_count": args.subset_test_count,
+        "selection_stride": args.selection_stride,
+        "selection_offset": args.selection_offset,
         "shard_count": args.shard_count,
         "shard_index": args.shard_index,
         "train": train_summary,

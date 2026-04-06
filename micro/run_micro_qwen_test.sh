@@ -14,8 +14,6 @@ cd "${PROJECT_ROOT}"
 MODEL_PATH="${1:-${QWEN_IMAGE_EDIT_MODEL:-/sda/wangxl/ai-bio/qwen-image-edit}}"
 OUTPUT_ROOT="${OUTPUT_ROOT:-micro/generated_qwen_test8}"
 LIMIT="${LIMIT:-8}"
-TRAIN_COUNT="${TRAIN_COUNT:-2400}"
-TEST_COUNT="${TEST_COUNT:-600}"
 SEED="${SEED:-20260402}"
 STEPS="${STEPS:-28}"
 CFG_SCALE="${CFG_SCALE:-3.2}"
@@ -24,17 +22,20 @@ TORCH_DTYPE="${TORCH_DTYPE:-bfloat16}"
 BLEND_STRENGTH="${BLEND_STRENGTH:-0.42}"
 DETAIL_SIGMA="${DETAIL_SIGMA:-1.1}"
 MASK_QUANTILE="${MASK_QUANTILE:-94}"
+SELECTION_STRIDE="${SELECTION_STRIDE:-3}"
+SELECTION_OFFSET="${SELECTION_OFFSET:-0}"
+MAX_RETRIES="${MAX_RETRIES:-2}"
 
 echo "Project root: ${PROJECT_ROOT}"
 echo "Model path: ${MODEL_PATH}"
 echo "Output root: ${OUTPUT_ROOT}"
 echo "Limit per split: ${LIMIT}"
+echo "Selection stride: ${SELECTION_STRIDE}"
+echo "Selection offset: ${SELECTION_OFFSET}"
 
 python micro/micro_qwen_dataset_pipeline.py \
   --model-path "${MODEL_PATH}" \
   --output-root "${OUTPUT_ROOT}" \
-  --subset-train-count "${TRAIN_COUNT}" \
-  --subset-test-count "${TEST_COUNT}" \
   --limit "${LIMIT}" \
   --seed "${SEED}" \
   --num-inference-steps "${STEPS}" \
@@ -42,6 +43,9 @@ python micro/micro_qwen_dataset_pipeline.py \
   --blend-strength "${BLEND_STRENGTH}" \
   --detail-sigma "${DETAIL_SIGMA}" \
   --mask-quantile "${MASK_QUANTILE}" \
+  --selection-stride "${SELECTION_STRIDE}" \
+  --selection-offset "${SELECTION_OFFSET}" \
+  --max-retries "${MAX_RETRIES}" \
   --device-map "${DEVICE_MAP}" \
   --torch-dtype "${TORCH_DTYPE}" \
   --overwrite

@@ -1,0 +1,11 @@
+{
+  "split": "train",
+  "assigned": 2,
+  "generated": 0,
+  "skipped_existing": 0,
+  "failures": 0,
+  "preview_path": null,
+  "style_buckets": {
+    "grayscale": 2
+  }
+}
